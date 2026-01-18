@@ -1,0 +1,15 @@
+Model Name,Routing Strategy,KV Caching Strategy,Parameter Sharing Scheme,Parameter Efficiency (Unique Params),Inference Throughput Speedup,Validation Metrics (NLL/Accuracy),Source
+Mixture-of-Recursions (MoR) - Expert,Expert-choice,Recursion-wise,Middle-Cycle,98M to 167M (360M scale;  $N_r=2$  to  $N_r=4$ ),2.06x (at B=Max),NLL: 2.7511 - 2.8204 / Avg Accuracy: 41.6% - 43.1%,1
+Mixture-of-Recursions (MoR) (~135M to 1.7B),Expert-choice or Token-choice,Recursion-wise or Sharing,Middle-Cycle (Fixed block of layers),135M to 1.7B,2.18x (Up to 3x efficiency),Outperforms vanilla/recursive baselines in validation loss and few-shot accuracy,"2, 3"
+Mixture-of-Recursions (MoR) / Recursive Language Model (RLM),Not in source,Not in source,Middle-Cycle (Inferred),135M to 1.7B (Inferred),2.18x (Inferred),"Accuracy: 62.00% (CodeQA), 91.33% (BrowseComp+), 56.50% (OOLONG)","4, 5"
+Qwen3-Coder-480B RLM,Not in source,Not in source,Not in source,480B,Not in source,"Accuracy: 56.00% (CodeQA), 44.66% (BrowseComp+), 48.00% (OOLONG)","4, 5"
+Mixture-of-Recursions (MoR) - Expert (Sharing),Expert-choice,Recursive Sharing,Middle-Cycle,"118M (360M scale,  $N_r=3$ )",Not in source,NLL: 2.7983 / Avg Accuracy: 41.9%,1
+Mixture-of-Recursions (MoR) - Token,Token-choice,Recursion-wise,Middle-Cycle,"118M (360M scale,  $N_r=3$ )",Not in source,NLL: 2.9163 / Avg Accuracy: 40.0%,1
+Recursive Transformer,Fixed-depth (None),Recursion-wise,Middle-Cycle,"118M (360M scale,  $N_r=3$ )",Not in source,NLL: 2.8466 / Avg Accuracy: 41.5%,1
+Vanilla Transformer,None,Standard,None,315M (360M scale),1.0x (Baseline),NLL: 2.7824 / Avg Accuracy: 42.3%,1
+Vanilla GPT-5 (Baseline),Not in source,Not in source,None (Vanilla Transformer),Not in source,1.0x (Baseline),"Accuracy: 24.00% (CodeQA), 0.00% (BrowseComp+), 44.00% (OOLONG)","4, 5"
+Recursive Neural Tensor Network (RNTN),Not in source,Not in source,Recursive Tensor Composition,Reduced parameters compared to MV-RNN,Not in source,"Accuracy: 85.4% (Binary Sentiment), 80.7% (Fine-grained)","6, 7"
+MV-RNN,Not in source,Not in source,Matrix-vector multiplication per node,Large number of parameters,Not in source,"Accuracy: 82.9 (Binary), 44.4 (Fine-grained)","6, 8"
+Deep RNN (DRNN),Not in source,Not in source,Stacked recursive layers (Untied Leaves/Internals),Constant params with increasing depth,Not in source,"Accuracy: 86.6 (Binary SST), 49.8 (Fine-grained SST)",8
+Vanilla Recursive RNN,Not in source,Not in source,Standard recursive application (Shared weights),Not in source,1.0x (Baseline),"Accuracy: 82.4 (Binary), 43.2 (Fine-grained)",8
+Tab-TRM (Tabular-Tiny Recursive Model),Not in source,Not in source,Parameter reuse across recursion steps,"14,820",Not in source,$23.589 \times 10^{-2}$  (Out-of-sample Poisson Deviance),9

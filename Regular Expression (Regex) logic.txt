@@ -1,0 +1,43 @@
+if not code_blocks:
+                # If no code, assume the model is giving the final answer or asking for clarification.
+                # We can stop or prompt for confirmation. For this demo, we assume completion.
+                print("No code detected. Assuming final answer.")
+                break
+            
+            # 3. Execute Code
+            # We execute all blocks found in sequence
+            observation_log = []
+            for code in code_blocks:
+                print(f"[Executing Code]...")
+                result = self.execute_python_block(code)
+                print(f"[Output]:\n{textwrap.indent(result, '    ')}")
+                observation_log.append(result)
+            
+            # 4. Formulate Next Prompt
+            observations_str = "\n".join(observation_log)
+            current_prompt = f"OBSERVATION FROM YOUR CODE EXECUTION:\n{observations_str}\n\nProceed with your analysis or provide the final answer."
+
+        print("--- RLM Loop Complete ---")
+
+# --- USAGE EXAMPLE ---
+if __name__ == "__main__":
+    # Simulate a "large" context 
+    # (In reality, this would be loaded from a file or API)
+    SIMULATED_LARGE_DOC = """
+    [CONFIDENTIAL FINANCIAL REPORT 2025]
+    ... (imagine 50,000 lines of filler) ...
+    Section 4B: Mergers and Acquisitions.
+    On October 15, 2025, the company finalized the merger with OmniCorp.
+    The deal is valued at $4.5 Billion.
+    ... (imagine 50,000 more lines) ...
+    """
+    
+    # Initialize Environment
+    # NOTE: Set your API key here or in env vars
+    try:
+        rlm = RLMEnv(context_str=SIMULATED_LARGE_DOC)
+        
+        # Run the Agent
+        rlm.run_root_loop("What is the date and value of the merger mentioned in the report?")
+    except ValueError as e:
+        print(e)

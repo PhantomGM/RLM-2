@@ -1,0 +1,3 @@
+# Making AI Think With Recursive Loops
+
+https://lh3.googleusercontent.com/notebooklm/AG60hOrMgcPlVES9fynJns8ItpD\_pDludtTugMTQzEFuHCwaQTlB5TeLHd2E0qi2QsoUJWOwGDdyqoWc3Gi3u70zCei876YSIM9nKd4H0QqqCbP9imgWn\_ISKjvc2aDF2Gxzw1eY2RchMsNN9e3n1dMMcJ34UnkGIg=m140-dv
