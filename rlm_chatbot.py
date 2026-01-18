@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import math
-import os
 import re
 import textwrap
 from dataclasses import dataclass
@@ -61,6 +60,8 @@ class RLMChatBot:
         for path in self.context_files:
             if not path.exists():
                 continue
+            if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+                continue
             raw_text = path.read_text(encoding="utf-8", errors="ignore")
             for index, chunk in enumerate(self._chunk_text(raw_text)):
                 chunks.append(ContextChunk(source=path.name, index=index, text=chunk))
@@ -107,19 +108,24 @@ class RLMChatBot:
         refined_findings: List[ChunkFinding] = []
         for finding in findings:
             sub_query = self._refine_query(query, finding)
-            deeper_findings = self._search_chunks(sub_query, base_chunks=[finding.chunk])
+            deeper_findings = self._search_chunks(sub_query, boost_chunks={finding.chunk})
             refined_findings.extend(deeper_findings)
         return refined_findings or findings
 
     def _search_chunks(
-        self, query: str, base_chunks: Sequence[ContextChunk] | None = None
+        self,
+        query: str,
+        base_chunks: Sequence[ContextChunk] | None = None,
+        boost_chunks: set[ContextChunk] | None = None,
     ) -> List[ChunkFinding]:
         """Score chunks and collect top snippets that match the query."""
         chunks = base_chunks if base_chunks is not None else self.context_chunks
-        query_terms = self._tokenize(query)
+        query_terms = set(self._tokenize(query))
         findings: List[ChunkFinding] = []
         for chunk in chunks:
             score, snippets = self._score_chunk(chunk.text, query_terms)
+            if score > 0 and boost_chunks and chunk in boost_chunks:
+                score *= 1.25
             if score <= 0:
                 continue
             findings.append(ChunkFinding(chunk=chunk, score=score, snippets=snippets))
@@ -128,9 +134,9 @@ class RLMChatBot:
     def _tokenize(self, text: str) -> List[str]:
         return [token.lower() for token in re.findall(r"[A-Za-z0-9]+", text)]
 
-    def _score_chunk(self, text: str, query_terms: List[str]) -> tuple[float, List[str]]:
-        lowered = text.lower()
-        hits = [term for term in query_terms if term in lowered]
+    def _score_chunk(self, text: str, query_terms: set[str]) -> tuple[float, List[str]]:
+        token_set = set(self._tokenize(text))
+        hits = [term for term in query_terms if term in token_set]
         if not hits:
             return 0.0, []
         term_density = len(hits) / max(len(query_terms), 1)
@@ -142,8 +148,8 @@ class RLMChatBot:
         sentences = re.split(r"(?<=[.!?])\s+", text)
         scored: List[tuple[float, str]] = []
         for sentence in sentences:
-            lowered = sentence.lower()
-            score = sum(1 for term in terms if term in lowered)
+            tokens = set(self._tokenize(sentence))
+            score = sum(1 for term in terms if term in tokens)
             if score:
                 scored.append((score, sentence.strip()))
         scored.sort(key=lambda item: item[0], reverse=True)
